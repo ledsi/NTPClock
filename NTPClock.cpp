@@ -77,8 +77,17 @@ void NTPClock::update( void )
 void NTPClock::sync( void ) {
 
 	// time update
-	timeClient.update();
+	while(!timeClient.update()) {
+		timeClient.forceUpdate();
+	}
+
+	// time
 	timeStamp = timeClient.getFormattedTime();
+
+	// date
+	epochTime = timeClient.getEpochTime();
+
+	// millisSinceSync
 	millisSinceSync = millis();
 
 	// values
@@ -170,6 +179,110 @@ String NTPClock::getTime( String selector ) {
 		return "Please specify format: all, hour, minute, second, full";
 	}
 
+}
+
+
+// getDate
+// ====================================================
+String NTPClock::getDate( String selector ) {
+	time_t rawtime = epochTime;
+	struct tm * ti;
+	ti = localtime (&rawtime);
+
+	uint8_t day = ti->tm_mday;
+	String dayStr = day < 10 ? "0" + String(day) : String(day);
+
+	uint8_t month = ti->tm_mon + 1;
+	String monthStr = month < 10 ? "0" + String(month) : String(month);
+
+	uint16_t year = ti->tm_year + 1900;
+	String yearStr = String(year);
+
+	// return
+	if( selector == "full" ) {
+		return dayStr + "." + monthStr + "." + yearStr;
+	}
+	else if( selector == "day") {
+		return dayStr;
+	}
+	else if( selector == "month") {
+		return monthStr;
+	}
+	else if( selector == "year") {
+		return yearStr;
+	}
+}
+
+// getWeekDay
+// ====================================================
+String NTPClock::getWeekDay( String selector, String lang ) {
+	String dateString;
+	int lang_num;
+
+	// getDate
+	int day = ((epochTime / 86400) + 4) % 7;
+
+	// language
+	if( lang == "de" ) {lang_num = 0;}
+	else if( lang == "en" ) {lang_num = 1;}
+
+	// names
+	const String name_full[][7] = {
+		{"Sonntag", "Montag", "Dienstag", "Mittwoch", "Donnerstag", "Freitag", "Samstag"},
+		{"Sunday", "Monday", "Tuesday", "Wednesday", "Thurstay", "Friday", "Saturday"}
+	};
+	const String name_short[][7] = {
+		{"So", "Mo", "Di", "Mi", "Do", "Fr", "Sa"},
+		{"Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"}
+	};
+
+	// select
+	if( selector == "number" ) {
+		dateString = String(day);
+	}
+	else if( selector == "full" ) {
+		dateString = name_full[lang_num][day];
+	}
+	else if( selector == "short" ) {
+		dateString = name_short[lang_num][day];
+	}
+
+	return dateString;
+}
+
+// getMonth
+// ====================================================
+String NTPClock::getMonth( String selector, String lang ) {
+	String monthString;
+	String date = getDate();
+	int lang_num;
+
+	// getMonth
+	int month = date.substring(3, 5).toInt() -1;
+
+	// language
+	if( lang == "de" ) {lang_num = 0;}
+	else if( lang == "en" ) {lang_num = 1;}
+
+	// names
+	const String month_full[][12] = {
+		{"Januar", "Februar", "März", "April", "Mai", "Juni", "Juli", "August", "September", "Oktober", "November", "Dezember"},
+		{"January", "February", "March", "April", "May", "June", "July", "August", "Semtember", "October", "November", "December"}
+	};
+	const String month_short[][12] = {
+		{"Jan", "Feb", "Mrz", "Apr", "Mai", "Jun", "Jul", "Aug", "Sep", "Okt", "Nov", "Dez"},
+		{"Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"}
+	};
+
+	// select
+	if( selector == "full" ) {
+		monthString = month_full[lang_num][month];
+	}
+	else if( selector == "short" ) {
+		monthString = month_short[lang_num][month];
+	}
+
+	return monthString;
 }
 
 

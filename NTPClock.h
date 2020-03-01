@@ -22,6 +22,7 @@ class NTPClock
 	long second;
 	long millisSinceSync;
 	long milliTimeStamp;
+	unsigned long epochTime;
 
 
 	public:
@@ -42,6 +43,9 @@ class NTPClock
 	void sync( void );
 	void timeToMillis( long hour, long minute, long second );
 	String getTime( String selector = "all" );
+	String getDate( String selector = "full" );
+	String getWeekDay( String selector = "full", String lang = "de" );
+	String getMonth( String selector = "full", String lang = "de" );
 	void setDelayTimer( void );
 
 };
