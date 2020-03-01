@@ -1,5 +1,6 @@
 #ifndef _H_NTPCLOCK
 #define _H_NTPCLOCK
+#include <Arduino.h>
 
 class NTPClock
 {
