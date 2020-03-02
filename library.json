@@ -1,12 +1,13 @@
 {
-  "name": "NTPClock",
-  "keywords": "ntp, client, time, clock",
-  "description": "A clock with NTP time updates",
+  "name":"NTPClock",
+  "keywords":"ntp, client, time, clock",
+  "description":"A clock with NTP time updates",
   "authors":
   [
     {
       "name": "Julian Kuhn",
-      "email": "julian@kuhnsches.de"
+      "email": "julian@kuhnsches.de",
+      "maintainer": true
     }
   ],
   "repository":
@@ -16,11 +17,5 @@
   },
   "version": "1.1.0",
   "frameworks": "arduino",
-  "platforms": "espressif",
-  "dependencies": [
-    {
-      "name": "NTPClient",
-      "platforms": "espressif8266"
-    }
-  ]
+  "platforms": "espressif"
 }
