@@ -1,21 +1,19 @@
 {
-  "name":"NTPClock",
-  "keywords":"ntp, client, time, clock",
-  "description":"A clock with NTP time updates",
-  "authors":
-  [
-    {
-      "name": "Julian Kuhn",
-      "email": "julian@kuhnsches.de",
-      "maintainer": true
-    }
-  ],
-  "repository":
-  {
-    "type": "git",
-    "url": "https://github.com/ledsi/NTPClock.git"
-  },
-  "version": "1.1.0",
-  "frameworks": "arduino",
-  "platforms": "espressif"
+	"name":"NTPClock",
+	"keywords":"ntp, client, time, clock",
+	"description":"A clock with NTP time updates",
+	"authors":
+	{
+	  "name": "Julian Kuhn",
+	  "email": "julian@kuhnsches.de",
+	  "maintainer": true
+	},
+	"repository":
+	{
+		"type": "git",
+		"url": "https://github.com/ledsi/NTPClock.git"
+	},
+	"version": "1.1.0",
+	"frameworks": "arduino",
+	"platforms": "espressif"
 }
