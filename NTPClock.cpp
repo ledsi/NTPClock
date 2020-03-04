@@ -77,9 +77,7 @@ void NTPClock::update( void )
 void NTPClock::sync( void ) {
 
 	// time update
-	while(!timeClient.update()) {
-		timeClient.forceUpdate();
-	}
+	timeClient.update();
 
 	// time
 	timeStamp = timeClient.getFormattedTime();
