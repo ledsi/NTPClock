@@ -4,7 +4,7 @@
 
 // europe time
 WiFiUDP ntpUDP;
-NTPClient timeClient(ntpUDP, "europe.pool.ntp.org", 3600, 60000);
+NTPClient timeClient(ntpUDP, "europe.pool.ntp.org", 0, 60000);
 
 // Contructor
 NTPClock::NTPClock( void )
@@ -19,17 +19,19 @@ NTPClock::~NTPClock( void )
 }
 
 
-// begin
+// init
 // ====================================================
-void NTPClock::begin( int customRefreshRate )
+void NTPClock::begin( int offset, int customRefreshRate )
 {
 
-	#if DEBUG
+	#if NTPCLOCK_DEBUG
 		Serial.println("");
 		Serial.println("==================");
 		Serial.println(" NTP CLOCK INIT ");
 		Serial.println("==================");
 	#endif
+
+	timeOffset = offset;
 
 	if( customRefreshRate != 0 ) {
 		refreshRate = customRefreshRate;
@@ -48,11 +50,11 @@ void NTPClock::begin( int customRefreshRate )
 void NTPClock::update( void )
 {
 
-	#if DEBUG
-		Serial.println("");
-		Serial.println("==================");
-		Serial.println(" SYNC ");
-		Serial.println("==================");
+	#if DEBUG_NTPCLOCK
+		// Serial.println("");
+		// Serial.println("==================");
+		// Serial.println(" SYNC ");
+		// Serial.println("==================");
 	#endif
 
 
@@ -79,14 +81,17 @@ void NTPClock::sync( void ) {
 	// time update
 	timeClient.update();
 
-	// time
-	timeStamp = timeClient.getFormattedTime();
-
 	// date
-	epochTime = timeClient.getEpochTime();
+	epochTime = timeClient.getEpochTime() + timeOffset;
+
+	// time
+	timeStamp = getFormattedTime(epochTime);
 
 	// millisSinceSync
 	millisSinceSync = millis();
+
+	// epochDay
+	epochDay = (( (epochTime + ( millis() - millisSinceSync )) / 86400) + 4) % 7;
 
 	// values
 	hour 	= timeStamp.substring(0, 2).toInt();
@@ -96,13 +101,28 @@ void NTPClock::sync( void ) {
 	// convert time to millis
 	timeToMillis( hour, minute, second );
 
-	#if DEBUG
+	#if DEBUG_NTPCLOCK
 		Serial.println("TIME SYNC:");
 		Serial.println(timeStamp);
 	#endif
 }
 
 
+// getFormattedTime
+// ====================================================
+String NTPClock::getFormattedTime( unsigned long epochTime ) {
+
+  unsigned long hours = (epochTime % 86400L) / 3600;
+  String hoursStr = hours < 10 ? "0" + String(hours) : String(hours);
+
+  unsigned long minutes = (epochTime % 3600) / 60;
+  String minuteStr = minutes < 10 ? "0" + String(minutes) : String(minutes);
+
+  unsigned long seconds = epochTime % 60;
+  String secondStr = seconds < 10 ? "0" + String(seconds) : String(seconds);
+
+  return hoursStr + ":" + minuteStr + ":" + secondStr;
+}
 
 // timeToMillis
 // ====================================================
@@ -116,7 +136,7 @@ void NTPClock::timeToMillis( long hour, long minute, long second ) {
 	// update millis timestamp
 	milliTimeStamp 		= milliHour + milliMinute + milliSecond;
 
-	#if DEBUG
+	#if DEBUG_NTPCLOCK
 		Serial.println("timeToMillis");
 		Serial.println(milliTimeStamp);
 	#endif
@@ -217,9 +237,6 @@ String NTPClock::getWeekDay( String selector, String lang ) {
 	String dateString;
 	int lang_num;
 
-	// getDate
-	int day = ((epochTime / 86400) + 4) % 7;
-
 	// language
 	if( lang == "de" ) {lang_num = 0;}
 	else if( lang == "en" ) {lang_num = 1;}
@@ -236,13 +253,13 @@ String NTPClock::getWeekDay( String selector, String lang ) {
 
 	// select
 	if( selector == "number" ) {
-		dateString = String(day);
+		dateString = String(epochDay);
 	}
 	else if( selector == "full" ) {
-		dateString = name_full[lang_num][day];
+		dateString = name_full[lang_num][epochDay];
 	}
 	else if( selector == "short" ) {
-		dateString = name_short[lang_num][day];
+		dateString = name_short[lang_num][epochDay];
 	}
 
 	return dateString;
