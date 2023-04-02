@@ -229,6 +229,9 @@ String NTPClock::getDate( String selector ) {
 	else if( selector == "year") {
 		return yearStr;
 	}
+	else {
+		return dayStr + "." + monthStr + "." + yearStr;
+	}
 }
 
 // getWeekDay
