@@ -204,14 +204,13 @@ String NTPClock::getTime( String selector ) {
 // ====================================================
 String NTPClock::getDate( String selector ) {
 	time_t rawtime = epochTime;
-	struct tm * ti;
-	ti = localtime (&rawtime);
+	struct tm *ti = localtime(&rawtime);
 
 	uint8_t day = ti->tm_mday;
-	String dayStr = day < 10 ? "0" + String(day) : String(day);
+	String dayStr = (day < 10 ? "0" : "") + String(day);
 
 	uint8_t month = ti->tm_mon + 1;
-	String monthStr = month < 10 ? "0" + String(month) : String(month);
+	String monthStr = (month < 10 ? "0" : "") + String(month);
 
 	uint16_t year = ti->tm_year + 1900;
 	String yearStr = String(year);
@@ -229,7 +228,7 @@ String NTPClock::getDate( String selector ) {
 	else if( selector == "year") {
 		return yearStr;
 	}
-	else {
+	else {		
 		return dayStr + "." + monthStr + "." + yearStr;
 	}
 }
