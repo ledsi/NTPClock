@@ -84,27 +84,47 @@ void NTPClock::sync( void ) {
 	// date
 	epochTime = timeClient.getEpochTime() + timeOffset;
 
-	// time
+	// check DST
+	if (isDST(epochTime)) {
+		epochTime += 3600;
+	}
+
+	// update
 	timeStamp = getFormattedTime(epochTime);
-
-	// millisSinceSync
 	millisSinceSync = millis();
+	epochDay = (((epochTime + (millis() - millisSinceSync)) / 86400) + 4) % 7;
 
-	// epochDay
-	epochDay = (( (epochTime + ( millis() - millisSinceSync )) / 86400) + 4) % 7;
+	// parse
+	hour = timeStamp.substring(0, 2).toInt();
+	minute = timeStamp.substring(3, 5).toInt();
+	second = timeStamp.substring(6, 8).toInt();
 
-	// values
-	hour 	= timeStamp.substring(0, 2).toInt();
-	minute 	= timeStamp.substring(3, 5).toInt();
-	second 	= timeStamp.substring(6, 8).toInt();
-
-	// convert time to millis
-	timeToMillis( hour, minute, second );
+	// convert
+	timeToMillis(hour, minute, second);
 
 	#if DEBUG_NTPCLOCK
 		Serial.println("TIME SYNC:");
 		Serial.println(timeStamp);
 	#endif
+}
+
+bool NTPClock::isDST(time_t t) {
+    struct tm *timeinfo = localtime(&t);
+
+    int day = timeinfo->tm_mday;
+    int month = timeinfo->tm_mon + 1;
+    int wday = timeinfo->tm_wday;
+	
+    if (month == 3) {
+        int lastSunday = 31 - ((wday + (31 - day)) % 7);
+        return day >= lastSunday;
+    }
+    if (month == 10) {
+        int lastSunday = 31 - ((wday + (31 - day)) % 7);
+        return day < lastSunday;
+    }
+	
+    return month > 3 && month < 10;
 }
 
 

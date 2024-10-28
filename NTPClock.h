@@ -43,6 +43,7 @@ class NTPClock
 	void begin( int offset = 0, int customRefreshRate = 0 );
 	void update( void );
 	void sync( void );
+	bool isDST(time_t t);
 	void timeToMillis( long hour, long minute, long second );
 	String getFormattedTime( unsigned long epochTime );
 	String getTime( String selector = "all" );
